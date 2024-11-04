@@ -7,7 +7,7 @@ ENV TARGETARCH=${TARGETARCH}
 RUN echo ${TARGETARCH} > target-arch.txt
 
 RUN apt update && apt install -y \
-    curl wget unzip && \
+    curl wget unzip apt-transport-https ca-certificates curl gnupg && \
     rm -rf /var/lib/apt/lists/*
 
 # Install nomad
@@ -30,3 +30,11 @@ RUN wget -P /tmp https://github.com/opentofu/opentofu/releases/download/v1.7.2/t
     mv /tmp/tofu_1.7.2_linux_${TARGETARCH}/tofu /usr/local/bin && \
     rm /tmp/tofu_1.7.2_linux_${TARGETARCH}.zip && \
     rm -rf /tmp/tofu_1.7.2_linux_${TARGETARCH}
+
+# Install kubectl
+RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
+    chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg && \
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list && \
+    chmod 644 /etc/apt/sources.list.d/kubernetes.list && \
+    apt-get update && \
+    apt-get install -y kubectl
